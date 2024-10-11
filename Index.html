@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            background: linear-gradient(to bottom right, #ff7e5f, #feb47b); /* Gradient background */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5em;
+        }
+
+        /* Menu Button */
+        .menu {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .menu div {
+            width: 35px;
+            height: 5px;
+            background-color: white;
+            margin: 4px 0;
+            transition: background 0.3s;
+        }
+
+        .menu div:hover {
+            background-color: #ffdd57; /* Change color on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <h1>Welcome to Another Life</h1>
+
+</body>
+</html>
