@@ -3,55 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watch Something With Kash</title>
+    <title>Stream Page</title>
     <style>
         body {
-            background-color: #121212; /* Light black background */
-            color: #ffffff; /* White text */
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            margin: 20px 0;
-            font-size: 2.5em;
-        }
-        iframe {
-            width: 80%;
-            height: 450px; /* Adjust height as needed */
-            border: none;
-            margin: 20px 0;
-            background-color: #333; /* Background for iframe */
-        }
-        .telegram-button {
-            display: inline-flex;
-            align-items: center;
-            background-color: #0088cc; /* Telegram button color */
+            background-color: black;
             color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 1.2em;
-            margin: 20px 0;
+            font-family: Arial, sans-serif;
         }
-        .telegram-button img {
-            width: 20px; /* Adjust size of the logo */
-            margin-right: 8px;
+        #popup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+        #popup button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #join-now {
+            background-color: #007bff;
+            color: white;
+        }
+        #already-joined {
+            background-color: #28a745;
+            color: white;
+        }
+        #streaming-container {
+            display: none;
+            position: relative;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #cricket-sparx {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        a {
+            color: lightblue;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
 
-    <h1>Watch Something With Kash</h1>
+<div id="popup">
+    <p>Join our Telegram channel <a href="https://t.me/CricketSparx" target="_blank">@CricketSparx</a> for more links!</p>
+    <button id="join-now" onclick="joinNow()">Join Now</button>
+    <button id="already-joined" onclick="closePopup()">Already Joined</button>
+</div>
 
-    <!-- Replace YOUR_STREAM_URL with your actual streaming URL -->
-    <iframe src="https://prod-sports-eng-cf.jiocinema.com/hls/live/2100306/hd_akamai_merged_avc_eng_cricket_m1_111024/master.m3u8" allowfullscreen></iframe>
+<div id="streaming-container">
+    <div id="cricket-sparx">CricketSparx</div>
+    <video controls>
+        <source id="videoSource" src="" type="application/x-mpegURL">
+        Your browser does not support the video tag.
+    </video>
+</div>
 
-    <a class="telegram-button" href="https://t.me/NietGroup" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8f/Telegram_logo.svg" alt="Telegram Logo"> 
-        Join us on Telegram
-    </a>
+<script>
+    // Get the URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const streamingURL = urlParams.get('url');
+
+    // Set up the streaming if a URL is provided
+    if (streamingURL) {
+        document.getElementById('videoSource').src = streamingURL;
+        document.getElementById('streaming-container').style.display = 'block';
+    }
+
+    // Function to handle the "Join Now" button
+    function joinNow() {
+        window.open('https://t.me/CricketSparx', '_blank');
+    }
+
+    // Function to close the popup
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+    }
+</script>
 
 </body>
 </html>
