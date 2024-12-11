@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CricketSparx</title>
     <style>
         body {
             background-color: black;
@@ -13,7 +12,6 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             align-items: center;
             height: 100vh;
         }
@@ -51,34 +49,63 @@
             color: white;
         }
 
-        /* Header text */
-        #header {
-            font-size: 28px;
-            font-weight: bold;
-            margin: 20px 0;
-            text-align: center;
-            color: white;
-        }
-
         /* Streaming container */
         #streaming-container {
-            display: none;
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
             text-align: center;
+            position: relative;
         }
         video {
             width: 100%;
             height: auto;
             border: 1px solid white;
         }
+
+        /* Settings icon for quality change */
+        #settings-icon {
+            position: absolute;
+            bottom: 50px;
+            right: 60px;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+        }
+        #quality-selector {
+            display: none;
+            position: absolute;
+            bottom: 90px;
+            right: 10px;
+            background: black;
+            padding: 10px;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+        #quality-selector select {
+            padding: 5px;
+            border: 1px solid white;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+            font-size: 16px;
+        }
+
+        /* Telegram Button */
+        #telegram-btn {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-
-<!-- Header Text -->
-<div id="header">CricketSparx</div>
 
 <!-- Full-Screen Popup -->
 <div id="popup">
@@ -89,13 +116,30 @@
 
 <!-- Streaming Video -->
 <div id="streaming-container">
-    <video controls>
+    <video id="videoPlayer" controls>
         <source id="videoSource" src="" type="application/x-mpegURL">
         Your browser does not support the video tag.
     </video>
+    <div id="settings-icon" onclick="toggleQualitySelector()">⚙</div>
+    <div id="quality-selector">
+        <label for="quality">Select Quality:</label>
+        <select id="quality" onchange="changeQuality()">
+            <option value="-1" selected>Auto</option>
+        </select>
+    </div>
+    <button id="telegram-btn" onclick="joinTelegram()">Join Telegram</button>
 </div>
 
 <script>
+    const videoPlayer = document.getElementById('videoPlayer');
+    const qualitySelector = document.getElementById('quality-selector');
+    const settingsIcon = document.getElementById('settings-icon');
+
+    // Function to toggle the quality selector dropdown
+    function toggleQualitySelector() {
+        qualitySelector.style.display = qualitySelector.style.display === 'block' ? 'none' : 'block';
+    }
+
     // Function to get the URL parameter
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -107,17 +151,33 @@
 
     // Check if the streaming URL is provided
     if (streamingURL) {
-        // Set the video source to the streaming URL
-        const videoSource = document.getElementById('videoSource');
-        videoSource.src = streamingURL;
+        const hls = new Hls();
+        hls.loadSource(streamingURL);
+        hls.attachMedia(videoPlayer);
 
-        // Show the streaming container
-        const streamingContainer = document.getElementById('streaming-container');
-        streamingContainer.style.display = 'block';
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            const levels = hls.levels;
+            levels.forEach((level, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${level.height}p`;
+                document.getElementById('quality').appendChild(option);
+            });
+        });
+
+        function changeQuality() {
+            const selectedQuality = parseInt(document.getElementById('quality').value);
+            hls.currentLevel = selectedQuality === -1 ? -1 : selectedQuality;
+        }
     }
 
     // Function to handle "Join Now" button
     function joinNow() {
+        window.open('https://t.me/CricketSparx', '_blank');
+    }
+
+    // Function to handle Telegram button
+    function joinTelegram() {
         window.open('https://t.me/CricketSparx', '_blank');
     }
 
