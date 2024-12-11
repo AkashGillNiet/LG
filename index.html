@@ -12,6 +12,7 @@
             padding: 0;
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
             height: 100vh;
         }
@@ -51,6 +52,7 @@
 
         /* Streaming container */
         #streaming-container {
+            display: none;
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
@@ -66,16 +68,16 @@
         /* Settings icon for quality change */
         #settings-icon {
             position: absolute;
-            bottom: 50px;
-            right: 60px;
+            top: 10px;
+            right: 10px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px;
             color: white;
         }
         #quality-selector {
             display: none;
             position: absolute;
-            bottom: 90px;
+            top: 50px;
             right: 10px;
             background: black;
             padding: 10px;
@@ -91,17 +93,16 @@
             font-size: 16px;
         }
 
-        /* Telegram Button */
+        /* Telegram Join Button */
         #telegram-btn {
-            margin-top: 10px;
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 16px;
-            text-align: center;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -130,6 +131,7 @@
     <button id="telegram-btn" onclick="joinTelegram()">Join Telegram</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
     const videoPlayer = document.getElementById('videoPlayer');
     const qualitySelector = document.getElementById('quality-selector');
@@ -151,24 +153,32 @@
 
     // Check if the streaming URL is provided
     if (streamingURL) {
-        const hls = new Hls();
-        hls.loadSource(streamingURL);
-        hls.attachMedia(videoPlayer);
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(streamingURL);
+            hls.attachMedia(videoPlayer);
 
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            const levels = hls.levels;
-            levels.forEach((level, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${level.height}p`;
-                document.getElementById('quality').appendChild(option);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                const levels = hls.levels;
+                levels.forEach((level, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${level.height}p`;
+                    document.getElementById('quality').appendChild(option);
+                });
             });
-        });
 
-        function changeQuality() {
-            const selectedQuality = parseInt(document.getElementById('quality').value);
-            hls.currentLevel = selectedQuality === -1 ? -1 : selectedQuality;
+            function changeQuality() {
+                const selectedQuality = parseInt(document.getElementById('quality').value);
+                hls.currentLevel = selectedQuality === -1 ? -1 : selectedQuality;
+            }
+        } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+            videoPlayer.src = streamingURL;
+        } else {
+            alert("HLS is not supported in your browser.");
         }
+    } else {
+        alert("No streaming URL provided.");
     }
 
     // Function to handle "Join Now" button
