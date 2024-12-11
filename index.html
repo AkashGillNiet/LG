@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream Page</title>
+    <title>CricketSparx</title>
     <style>
         body {
             background-color: black;
             color: white;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
         #popup {
             display: flex;
@@ -25,6 +32,7 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             text-align: center;
+            z-index: 9999;
         }
         #popup button {
             margin: 10px;
@@ -45,8 +53,8 @@
         #streaming-container {
             display: none;
             position: relative;
-            text-align: center;
-            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
         }
         #cricket-sparx {
             position: absolute;
@@ -59,10 +67,13 @@
             font-size: 18px;
             font-weight: bold;
             text-align: center;
+            z-index: 10;
         }
         video {
+            display: block;
             width: 100%;
             height: auto;
+            border: 1px solid white;
         }
         a {
             color: lightblue;
@@ -87,24 +98,35 @@
 </div>
 
 <script>
-    // Get the URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const streamingURL = urlParams.get('url');
-
-    // Set up the streaming if a URL is provided
-    if (streamingURL) {
-        document.getElementById('videoSource').src = streamingURL;
-        document.getElementById('streaming-container').style.display = 'block';
+    // Function to get the URL parameter
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
     }
 
-    // Function to handle the "Join Now" button
+    // Get the streaming URL from the query parameter
+    const streamingURL = getQueryParam('url');
+
+    // Check if the streaming URL is provided
+    if (streamingURL) {
+        // Set the video source to the streaming URL
+        const videoSource = document.getElementById('videoSource');
+        videoSource.src = streamingURL;
+
+        // Show the streaming container
+        const streamingContainer = document.getElementById('streaming-container');
+        streamingContainer.style.display = 'block';
+    }
+
+    // Function to handle "Join Now" button
     function joinNow() {
         window.open('https://t.me/CricketSparx', '_blank');
     }
 
     // Function to close the popup
     function closePopup() {
-        document.getElementById('popup').style.display = 'none';
+        const popup = document.getElementById('popup');
+        popup.style.display = 'none';
     }
 </script>
 
