@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CricketSparx</title>
     <style>
         body {
             background-color: black;
@@ -17,7 +18,7 @@
             height: 100vh;
         }
 
-        /* Full-screen popup */
+        /* Full-Screen Popup */
         #popup {
             display: flex;
             flex-direction: column;
@@ -33,6 +34,7 @@
             z-index: 9999;
             text-align: center;
         }
+
         #popup button {
             margin: 10px;
             padding: 10px 20px;
@@ -50,14 +52,21 @@
             color: white;
         }
 
-        /* Streaming container */
+        /* Header */
+        #header {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+            color: white;
+        }
+
+        /* Video Container */
         #streaming-container {
-            display: none;
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
             text-align: center;
-            position: relative;
         }
         video {
             width: 100%;
@@ -65,24 +74,12 @@
             border: 1px solid white;
         }
 
-        /* Settings icon for quality change */
-        #settings-icon {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 24px;
-            color: white;
-        }
+        /* Quality Selector */
         #quality-selector {
-            display: none;
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            background: black;
-            padding: 10px;
-            border: 1px solid white;
-            border-radius: 5px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #quality-selector select {
             padding: 5px;
@@ -91,20 +88,21 @@
             background-color: black;
             color: white;
             font-size: 16px;
+            margin-right: 10px; /* Space between dropdown and button */
         }
 
         /* Telegram Join Button */
-        #telegram-btn {
+        #telegram-button {
+            padding: 10px 20px;
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            font-size: 16px;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.0/dist/hls.min.js"></script>
 </head>
 <body>
 
@@ -115,32 +113,26 @@
     <button id="already-joined" onclick="closePopup()">Already Joined</button>
 </div>
 
-<!-- Streaming Video -->
+<!-- Header -->
+<div id="header">CricketSparx</div>
+
+<!-- Video Streaming Section -->
 <div id="streaming-container">
-    <video id="videoPlayer" controls>
-        <source id="videoSource" src="" type="application/x-mpegURL">
-        Your browser does not support the video tag.
-    </video>
-    <div id="settings-icon" onclick="toggleQualitySelector()">⚙</div>
+    <video id="videoPlayer" controls></video>
     <div id="quality-selector">
-        <label for="quality">Select Quality:</label>
+        <label for="quality">Select Quality: </label>
         <select id="quality" onchange="changeQuality()">
             <option value="-1" selected>Auto</option>
         </select>
+        <!-- Telegram Join Button -->
+        <button id="telegram-button" onclick="joinTelegram()">Join Telegram</button>
     </div>
-    <button id="telegram-btn" onclick="joinTelegram()">Join Telegram</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    const videoPlayer = document.getElementById('videoPlayer');
-    const qualitySelector = document.getElementById('quality-selector');
-    const settingsIcon = document.getElementById('settings-icon');
-
-    // Function to toggle the quality selector dropdown
-    function toggleQualitySelector() {
-        qualitySelector.style.display = qualitySelector.style.display === 'block' ? 'none' : 'block';
-    }
+    const video = document.getElementById('videoPlayer');
+    const qualitySelector = document.getElementById('quality');
+    const hls = new Hls();
 
     // Function to get the URL parameter
     function getQueryParam(param) {
@@ -148,37 +140,41 @@
         return urlParams.get(param);
     }
 
-    // Get the streaming URL from the query parameter
-    const streamingURL = getQueryParam('url');
+    // Get HLS URL from query parameter
+    const hlsUrl = getQueryParam('url');
 
-    // Check if the streaming URL is provided
-    if (streamingURL) {
+    if (hlsUrl) {
+        // Initialize HLS.js
         if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(streamingURL);
-            hls.attachMedia(videoPlayer);
+            hls.loadSource(hlsUrl);
+            hls.attachMedia(video);
 
+            // Populate Quality Levels
             hls.on(Hls.Events.MANIFEST_PARSED, function () {
                 const levels = hls.levels;
                 levels.forEach((level, index) => {
                     const option = document.createElement('option');
                     option.value = index;
-                    option.textContent = `${level.height}p`;
-                    document.getElementById('quality').appendChild(option);
+                    option.textContent = `${level.height}p`; // Quality in resolution
+                    qualitySelector.appendChild(option);
                 });
             });
 
+            // Handle Quality Change
             function changeQuality() {
-                const selectedQuality = parseInt(document.getElementById('quality').value);
-                hls.currentLevel = selectedQuality === -1 ? -1 : selectedQuality;
+                const quality = parseInt(qualitySelector.value);
+                if (quality === -1) {
+                    hls.currentLevel = -1; // Auto Quality
+                } else {
+                    hls.currentLevel = quality; // Set selected quality
+                }
             }
-        } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-            videoPlayer.src = streamingURL;
-        } else {
-            alert("HLS is not supported in your browser.");
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS Support (e.g., Safari)
+            video.src = hlsUrl;
         }
     } else {
-        alert("No streaming URL provided.");
+        alert("No URL provided. Please add '?url=your_hls_link.m3u8' to the URL.");
     }
 
     // Function to handle "Join Now" button
@@ -186,15 +182,15 @@
         window.open('https://t.me/CricketSparx', '_blank');
     }
 
-    // Function to handle Telegram button
-    function joinTelegram() {
-        window.open('https://t.me/CricketSparx', '_blank');
-    }
-
     // Function to close the popup
     function closePopup() {
         const popup = document.getElementById('popup');
         popup.style.display = 'none';
+    }
+
+    // Function to open Telegram channel
+    function joinTelegram() {
+        window.open('https://t.me/CricketSparx', '_blank');
     }
 </script>
 
